@@ -1,5 +1,7 @@
 package constants
 
+import "github.com/jinzhu/gorm"
+
 //constants for Request Body
 const (
 	InvalidReqBody  = "Invalid Request Body"
@@ -16,11 +18,15 @@ const (
 
 //constants for URL Path
 const (
-	ADD_IMAGE = "add-image"
-	GET_OP    = "show-data"
+	ADD_IMAGE      = "add-image"
+	GET_OP         = "show-data"
+	GET_ALL_IMAGES = "all_scanned-images"
+	GET_IMAGE      = "scanned-image"
 )
 
 const (
 	ACTIVE = "Active"
 	DELETE = "Delete"
 )
+
+var DB *gorm.DB

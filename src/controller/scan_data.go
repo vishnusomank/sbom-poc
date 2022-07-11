@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vishnusomank/sbom-poc/models"
 	"github.com/vishnusomank/sbom-poc/src/syft"
 )
 
@@ -20,19 +23,39 @@ func AddImage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	syft.StartScan(input.ImageName, input.Version)
+
+	byteval := syft.StartScan(input.ImageName, input.Version)
+	sbom := models.SBOM{ImageName: input.ImageName, Version: input.Version, Value: string(byteval)}
+
+	models.DB.Create(&sbom)
 	c.JSON(http.StatusOK, gin.H{"Submitted": input.ImageName + ":" + input.Version})
 
 }
 
-func ShowData(c *gin.Context) {
+func GetAllScannedImages(c *gin.Context) {
+	var sbom []models.SBOM
+	count := models.DB.Find(&sbom)
+	for i := 0; i < int(count.RowsAffected); i++ {
+		c.JSON(http.StatusOK, gin.H{"ID": sbom[i].ID, "IMAGE NAME": sbom[i].ImageName, "IMAGE VERSION": sbom[i].Version})
+		c.String(1, "\n")
+	}
+	c.String(1, "Total Records loaded = "+strconv.FormatInt(count.RowsAffected, 10))
 
-	var input ImageInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+}
+
+func GetScannedImage(c *gin.Context) {
+	var sbom models.SBOM
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&sbom).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
 		return
 	}
-	syft.ShowResult(input.ImageName, input.Version)
-	c.JSON(http.StatusOK, gin.H{})
+
+	c.JSON(http.StatusOK, gin.H{"ID": sbom.ID, "IMAGE NAME": sbom.ImageName, "IMAGE VERSION": sbom.Version})
+	c.String(1, "\n")
+
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(sbom.Value), &jsonMap)
+
+	c.IndentedJSON(http.StatusOK, gin.H{"SBOM": jsonMap})
 
 }
