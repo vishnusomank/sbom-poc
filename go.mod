@@ -1,4 +1,4 @@
-module sbom-poc
+module github.com/vishnusomank/sbom-poc
 
 go 1.17
 

@@ -7,37 +7,37 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sbom-poc/utils/constants"
+
 	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"github.com/vishnusomank/sbom-poc/src/controller"
+	"github.com/vishnusomank/sbom-poc/utils/constants"
 )
 
 // Create once per go file and re use log
 var configFilePath *string
 
 func main() {
+
 	configFilePath = flag.String("config-path", "conf/", "conf/")
 	flag.Parse()
 
 	loadConfig()
-
-	gin.DisableConsoleColor()
+	gin.SetMode(gin.ReleaseMode)
+	models.ConnectDatabase()
 	r := gin.New()
 	//Allow CORS
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	r.Use(cors.New(corsConfig))
 
-	setupLogger(r)
 	setupRoutes(r)
 	startServer(r)
 }
-
-// loadConfig - Load the config parameters
 func loadConfig() {
 	viper.SetConfigName("app")
 	viper.SetConfigType("yaml")
@@ -95,18 +95,11 @@ func setupRoutes(r *gin.Engine) {
 		{
 			scanimage := v1.Group("/scan-image")
 			{
-				scanimage.POST(constants.ADD_REGISTRY_PATH, registryController.AddRegistry)
-				scanimage.POST(constants.GET_REGISTRY_TYPE_PATH, registryController.GetRegistryType)
-				scanimage.POST(constants.GET_LIST_OF_REGISTRY_PATH, registryController.GetListOfRegistry)
-				scanimage.POST(constants.EDIT_REGISTRY_PATH, registryController.EditRegistry)
-				scanimage.POST(constants.CHANGE_STATUS_REGISTRY_PATH, registryController.ChangeStatusRegistry)
-				scanimage.POST(constants.DELETE_REGISTRY_PATH, registryController.DeleteRegistry)
-				scanimage.POST(constants.GET_REGISTRY_PATH, registryController.GetRegistry)
-				scanimage.POST(constants.GET_LIST_OF_REGIONS_PATH, registryController.GetListOfRegions)
+				scanimage.POST(constants.ADD_IMAGE, controller.AddImage)
 			}
 			outputscan := v1.Group("/show-output")
 			{
-				outputscan.POST(constants.GET_DASHBOARD_PATH, dashboardController.GetDashboard)
+				outputscan.POST(constants.GET_OP, controller.ShowData)
 			}
 		}
 	}
