@@ -40,7 +40,7 @@ docker run -d -p 8080:8080 sbomsvc
 ```
 
 ## Usage
-The server exposes 3 APIs 
+The server exposes 4 APIs 
 
  - /sbomservice/api/v1/all_scanned-images
  - /sbomservice/api/v1/scanned-image/:id
