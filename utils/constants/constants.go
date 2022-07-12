@@ -22,6 +22,7 @@ const (
 	GET_OP         = "show-data"
 	GET_ALL_IMAGES = "all_scanned-images"
 	GET_IMAGE      = "scanned-image"
+	Get_VULN       = "get-vuln"
 )
 
 const (
