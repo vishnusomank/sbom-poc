@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vishnusomank/sbom-poc/models"
+	"github.com/vishnusomank/sbom-poc/src/grype"
 	"github.com/vishnusomank/sbom-poc/src/syft"
 )
 
@@ -25,7 +26,8 @@ func AddImage(c *gin.Context) {
 	}
 
 	byteval := syft.StartScan(input.ImageName, input.Version)
-	sbom := models.SBOM{ImageName: input.ImageName, Version: input.Version, Value: string(byteval)}
+	grypeVal := grype.StartGrype(input.ImageName, input.Version)
+	sbom := models.SBOM{ImageName: input.ImageName, Version: input.Version, Value: string(byteval), Vulnerability: string(grypeVal)}
 
 	models.DB.Create(&sbom)
 	c.JSON(http.StatusOK, gin.H{"Submitted": input.ImageName + ":" + input.Version})
@@ -57,5 +59,22 @@ func GetScannedImage(c *gin.Context) {
 	json.Unmarshal([]byte(sbom.Value), &jsonMap)
 
 	c.IndentedJSON(http.StatusOK, gin.H{"SBOM": jsonMap})
+
+}
+
+func GetVulnFromImage(c *gin.Context) {
+	var sbom models.SBOM
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&sbom).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ID": sbom.ID, "IMAGE NAME": sbom.ImageName, "IMAGE VERSION": sbom.Version})
+	c.String(1, "\n")
+
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(sbom.Vulnerability), &jsonMap)
+	//c.String(1, sbom.Vulnerability)
+	c.IndentedJSON(http.StatusOK, gin.H{"Vulnerabilities": jsonMap})
 
 }
