@@ -23,12 +23,6 @@ func StartScan(imageName, version string) []byte {
 	defer fileContent.Close()
 
 	byteResult, _ := ioutil.ReadAll(fileContent)
-	cmd = exec.Command("/bin/sh", "-c", "rm "+imageName+"_"+version+".json")
-	_, err = cmd.Output()
-	if err != nil {
-		log.Fatal("SBOM generation failed : " + err.Error())
-	}
-
 	return byteResult
 
 }
