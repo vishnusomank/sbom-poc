@@ -8,7 +8,7 @@ A simple microservice to produce the Software Bill of Materials.
 
 ## Prerequisites
 
-To make the microservice work please have a
+To make the microservice work have a
  - go version >= 1.17.8
 
 
@@ -17,7 +17,7 @@ To make the microservice work please have a
 
 SBOMService requires  **go1.17 or higher**  to run successfully. Run the following commands to build the latest version-
 ```sh
-git clone git@github.com:vishnusomank/sbom-poc.git
+git clone https://github.com/vishnusomank/sbom-poc.git
 cd sbom-poc
 go mod tidy
 go build -o SBOMService main.go 
@@ -30,7 +30,7 @@ To run the program use-
 ## Run SBOMService [using Docker]
 
 ```sh
-git clone git@github.com:vishnusomank/sbom-poc.git
+git clone https://github.com/vishnusomank/sbom-poc.git
 cd sbom-poc
 docker build -t sbomsvc . 
 ```
