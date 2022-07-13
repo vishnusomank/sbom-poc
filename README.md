@@ -22,7 +22,7 @@ cd sbom-poc
 go mod tidy
 go build -o SBOMService main.go 
 ```
-To run the program use-
+To run the program use
 ```sh
 ./SBOMService
 ```
@@ -34,7 +34,7 @@ git clone https://github.com/vishnusomank/sbom-poc.git
 cd sbom-poc
 docker build -t sbomsvc . 
 ```
-To run the program use-
+To run the program use
 ```sh
 docker run -d -p 8080:8080 sbomsvc
 ```
