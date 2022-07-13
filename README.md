@@ -15,7 +15,7 @@ To make the microservice work have a
 
 ## Run SBOMService [using Go]
 
-SBOMService requires  **go1.17 or higher**  to run successfully. Run the following commands to build the latest version-
+SBOMService requires  **go1.17 or higher**  to run successfully. Run the following commands to build the latest version
 ```sh
 git clone https://github.com/vishnusomank/sbom-poc.git
 cd sbom-poc
