@@ -108,6 +108,7 @@ func setupRoutes(r *gin.Engine) {
 			v1.GET(constants.GET_IMAGE+"/:id", controller.GetScannedImage)
 
 			v1.GET(constants.Get_VULN+"/:id", controller.GetVulnFromImage)
+			v1.GET(constants.GET_POL+"/:id",controller.GetPolicyForImage)
 
 		}
 	}
