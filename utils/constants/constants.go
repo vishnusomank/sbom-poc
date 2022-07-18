@@ -23,6 +23,7 @@ const (
 	GET_ALL_IMAGES = "all_scanned-images"
 	GET_IMAGE      = "scanned-image"
 	Get_VULN       = "get-vuln"
+	GET_POL        = "get-policy"
 )
 
 const (
