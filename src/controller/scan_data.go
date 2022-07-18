@@ -78,3 +78,18 @@ func GetVulnFromImage(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"Vulnerabilities": jsonMap})
 
 }
+
+func GetPolicyForImage(c *gin.Context) {
+	var sbom models.SBOM
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&sbom).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ID": sbom.ID, "IMAGE NAME": sbom.ImageName, "IMAGE VERSION": sbom.Version})
+	c.String(1, "\n")
+
+	polVal := PolicyCreate(sbom.ImageName,sbom.Version)
+	c.String(1, polVal)
+
+}
