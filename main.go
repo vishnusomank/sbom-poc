@@ -42,6 +42,7 @@ func main() {
 	fmt.Printf("[%s][%s] Configurations loaded\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.GreenString("DONE"))
 	fmt.Printf("[%s][%s] Database configured\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.GreenString("DONE"))
 	fmt.Printf("[%s][%s] Routes loaded\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.GreenString("DONE"))
+	controller.PopulateDummyPol()
 	startServer(r)
 
 }
@@ -108,7 +109,7 @@ func setupRoutes(r *gin.Engine) {
 			v1.GET(constants.GET_IMAGE+"/:id", controller.GetScannedImage)
 
 			v1.GET(constants.Get_VULN+"/:id", controller.GetVulnFromImage)
-			v1.GET(constants.GET_POL+"/:id",controller.GetPolicyForImage)
+			v1.GET(constants.GET_POL+"/:id", controller.GetPolicyForImage)
 
 		}
 	}
