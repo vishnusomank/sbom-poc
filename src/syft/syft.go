@@ -1,13 +1,19 @@
 package syft
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"time"
+
+	"github.com/fatih/color"
+	"github.com/vishnusomank/sbom-poc/models"
+	"github.com/vishnusomank/sbom-poc/src/grype"
 )
 
-func StartScan(imageName, version string) []byte {
+func StartScan(imageName, version string, id int, sbom *models.SBOM) {
 	cmd := exec.Command("/bin/sh", "-c", "syft "+imageName+":"+version+" --scope all-layers -o syft-json="+imageName+"_"+version+".json")
 	_, err := cmd.Output()
 	if err != nil {
@@ -17,12 +23,18 @@ func StartScan(imageName, version string) []byte {
 
 	if err != nil {
 		log.Fatal(err)
-		return nil
 	}
 
 	defer fileContent.Close()
 
 	byteResult, _ := ioutil.ReadAll(fileContent)
-	return byteResult
+
+	if err := models.DB.Model(&sbom).Where("id = ?", id).Update("Value", string(byteResult)).Error; err != nil {
+		fmt.Printf("[%s][%s] Unable to update SBOM value\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"))
+
+		return
+	}
+
+	go grype.StartGrype(imageName, version, id, sbom)
 
 }
