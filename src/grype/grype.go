@@ -45,8 +45,6 @@ func StartGrype(imageName, version string, id int, sbom *models.SBOM) {
 	value := gjson.Get(string(file), "matches.#")
 	numValue, _ := strconv.Atoi(value.Raw)
 
-	fmt.Println("rows affected ", count.RowsAffected)
-
 	for i := 1; i <= numValue; i++ {
 		polcount := 0
 		dataVal := gjson.Get(string(file), "matches."+strconv.Itoa(i)+".vulnerability.id")
@@ -56,14 +54,10 @@ func StartGrype(imageName, version string, id int, sbom *models.SBOM) {
 				fmt.Printf("[%s][%s] Failed to retrieve data %v\n", color.RedString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"), err)
 				return
 			}
-			fmt.Println("polcount outside ", polcount)
 			if strings.Contains(policydb[0].CVEId, dataVal.String()) && polcount == 0 {
-				fmt.Println("polcount inside ", polcount)
-				fmt.Println("contains ", policydb[0].CVEId)
 				sbompolicy := models.SBOMPolicy{SbomID: id, PolicyID: j}
 				models.SBOMPOLICYDB.Create(&sbompolicy)
 				polcount = 1
-				fmt.Println("polcount inside after change ", polcount)
 			}
 
 		}
