@@ -7,3 +7,14 @@ type SBOM struct {
 	Value         string `json:"sbom"`
 	Vulnerability string `json:"vulnerability"`
 }
+
+type PolicyDB struct {
+	ID         uint   `json:"id" gorm:"primary_key"`
+	CVEId      string `json:"cve"`
+	PolicyData string `json:"policy"`
+}
+
+type SBOMPolicy struct {
+	SbomID   int `json:"sbomID"`
+	PolicyID int `json:"policyID"`
+}
