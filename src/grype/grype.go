@@ -13,6 +13,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/tidwall/gjson"
 	"github.com/vishnusomank/sbom-poc/models"
+	"github.com/vishnusomank/sbom-poc/src/policy"
 )
 
 func StartGrype(imageName, version string, id int, sbom *models.SBOM) {
@@ -45,10 +46,11 @@ func StartGrype(imageName, version string, id int, sbom *models.SBOM) {
 	value := gjson.Get(string(file), "matches.#")
 	numValue, _ := strconv.Atoi(value.Raw)
 
+	go policy.PolicySearch(imageName, version, file, value, id)
+
 	for i := 1; i <= numValue; i++ {
 		polcount := 0
 		dataVal := gjson.Get(string(file), "matches."+strconv.Itoa(i)+".vulnerability.id")
-		println("data value", dataVal.String())
 		for j := 1; j <= int(count.RowsAffected); j++ {
 			if err := models.POLICYDB.Where("ID = ?", j).First(&policydb).Error; err != nil {
 				fmt.Printf("[%s][%s] Failed to retrieve data %v\n", color.RedString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"), err)
