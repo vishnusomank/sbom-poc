@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -121,29 +122,41 @@ func GetVulnFromImage(c *gin.Context) {
 }
 
 func GetPolicyForImage(c *gin.Context) {
-	var sbompolicy models.SBOMPolicy
+	var sbompolicy []models.SBOMPolicy
+	var test []models.SBOMPolicy
 	var policy models.PolicyDB
-	if err := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).First(&sbompolicy).Error; err != nil {
+
+	count := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&test)
+
+	fmt.Println(count.RowsAffected)
+
+	if err := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&sbompolicy).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
 		return
 	}
 
-	if sbompolicy.SbomID == 0 {
+	if sbompolicy[1].SbomID == 0 {
 		c.JSON(http.StatusOK, gin.H{"Computation in progress": "Please wait"})
 		c.String(200, "\n")
 
 	} else {
+		for i := 1; i <= int(count.RowsAffected); i++ {
+			/*
+				if err := models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy).Error; err != nil {
+					c.String(200, "\n")
+					c.JSON(http.StatusBadRequest, gin.H{"ID": sbompolicy[i].PolicyID, "Error": "Record not found!"})
+					c.String(200, "\n")
+					//return
+				}
+			*/
+			models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy)
 
-		if err := models.POLICYDB.Where("id = ?", sbompolicy.PolicyID).First(&policy).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
-			return
+			var jsonMap map[string]interface{}
+			json.Unmarshal([]byte(policy.PolicyData), &jsonMap)
+			c.JSON(http.StatusOK, gin.H{"ID": sbompolicy[i].SbomID, "PolicyID": sbompolicy[i].PolicyID})
+			c.String(200, "\n")
+			c.IndentedJSON(http.StatusOK, gin.H{"Policy": jsonMap})
 		}
-
-		var jsonMap map[string]interface{}
-		json.Unmarshal([]byte(policy.PolicyData), &jsonMap)
-		c.JSON(http.StatusOK, gin.H{"ID": sbompolicy.SbomID})
-		c.String(200, "\n")
-		c.IndentedJSON(http.StatusOK, gin.H{"Policy": jsonMap})
 	}
 
 }
