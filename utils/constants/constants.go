@@ -31,8 +31,6 @@ const (
 	DELETE = "Delete"
 )
 
-var DB *gorm.DB
-var POLICYDB *gorm.DB
-var SBOMPOLICYDB *gorm.DB
+var DB, POLICYDB, SBOMPOLICYDB, BINARYPATHDB *gorm.DB
 
 var PolDummyData = `{ "apiVersion": "security.kubearmor.com/v1", "kind": "KubeArmorPolicy", "metadata": { "name": "ksp-cve-2022-29458", "namespace": "default" }, "spec": { "tags": [ "CVE", "CVE-2022-29458", "ksp" ], "message": "Accessed passwd and/or shadow file from frontend", "selector": { "matchLabels": { "app": "frontend" } }, "file": { "severity": 10, "matchPaths": [ { "path": "/etc/passwd" }, { "path": "/etc/shadow", "fromSource": [ { "path": "/src/server" } ] } ], "action": "Audit" } } }`
