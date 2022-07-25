@@ -9,6 +9,7 @@ import (
 var DB = constants.DB
 var POLICYDB = constants.POLICYDB
 var SBOMPOLICYDB = constants.SBOMPOLICYDB
+var BINARYPATHDB = constants.BINARYPATHDB
 
 func ConnectDatabase() {
 	database, err := gorm.Open("sqlite3", "SBOM.db")
@@ -40,4 +41,14 @@ func ConnectDatabase() {
 	sbomdatabase.AutoMigrate(&SBOMPolicy{})
 
 	SBOMPOLICYDB = sbomdatabase
+
+	binarypathdb, err := gorm.Open("sqlite3", "BinaryPathDB.db")
+
+	if err != nil {
+		panic("Failed to connect to database!")
+	}
+
+	binarypathdb.AutoMigrate(&BinaryPathDB{})
+
+	BINARYPATHDB = binarypathdb
 }
