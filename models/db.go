@@ -18,3 +18,8 @@ type SBOMPolicy struct {
 	SbomID   int `json:"sbomID"`
 	PolicyID int `json:"policyID"`
 }
+
+type BinaryPathDB struct {
+	BinaryName string `json:"name"`
+	BinaryPath string `json:"path"`
+}
