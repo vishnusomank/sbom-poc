@@ -140,7 +140,7 @@ func GetPolicyForImage(c *gin.Context) {
 		c.String(200, "\n")
 
 	} else {
-		for i := 1; i <= int(count.RowsAffected); i++ {
+		for i := 0; i < int(count.RowsAffected); i++ {
 			/*
 				if err := models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy).Error; err != nil {
 					c.String(200, "\n")
