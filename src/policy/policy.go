@@ -46,38 +46,43 @@ func PolicySearch(imageName, imageVersion string, file []byte, value gjson.Resul
 
 func PolicyCreate(imageName, imageVersion string, datastring string, id int) {
 
-	pol := SystemPolicy{
-		Version: "security.kubearmor.com/v1",
-		KindVal: "KubeArmorPolicy",
-		MetadataVal: MetadataVal{
-			Name:      "sbom-policy-for-" + imageName + "-" + imageVersion + "-" + datastring,
-			Namespace: "default",
-		},
-		SpecVal: SpecVal{
-			Severity: 5,
-			Skeleton: PolSkeleton{
-				MatchPath: Matchpath{
-					Path: "/bin/" + datastring,
-				},
+	var binarypathdb []models.BinaryPathDB
+	count := models.BINARYPATHDB.Where("binary_name = ?", datastring).Find(&binarypathdb)
+	for i := 0; i < int(count.RowsAffected); i++ {
+
+		pol := SystemPolicy{
+			Version: "security.kubearmor.com/v1",
+			KindVal: "KubeArmorPolicy",
+			MetadataVal: MetadataVal{
+				Name:      "sbom-policy-for-" + imageName + "-" + imageVersion + "-" + datastring + "-" + strconv.Itoa(i),
+				Namespace: "default",
 			},
-			Action: "Audit",
-		},
+			SpecVal: SpecVal{
+				Severity: 5,
+				Skeleton: PolSkeleton{
+					MatchPath: Matchpath{
+						Path: binarypathdb[i].BinaryPath,
+					},
+				},
+				Action: "Audit",
+			},
+		}
+
+		jsonData, err := json.Marshal(&pol)
+		if err != nil {
+			fmt.Printf("[%s][%s] Error while Marshaling. %v\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"), err)
+		}
+
+		policydb := models.PolicyDB{CVEId: "null", PolicyData: string(jsonData)}
+
+		models.POLICYDB.Create(&policydb)
+
+		if err := models.POLICYDB.Last(&policydb).Error; err != nil {
+			log.Panic(err)
+		}
+
+		sbompolicy := models.SBOMPolicy{SbomID: id, PolicyID: int(policydb.ID)}
+		models.SBOMPOLICYDB.Create(&sbompolicy)
 	}
-
-	jsonData, err := json.Marshal(&pol)
-	if err != nil {
-		fmt.Printf("[%s][%s] Error while Marshaling. %v\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"), err)
-	}
-
-	policydb := models.PolicyDB{CVEId: "null", PolicyData: string(jsonData)}
-
-	models.POLICYDB.Create(&policydb)
-
-	if err := models.POLICYDB.Last(&policydb).Error; err != nil {
-		log.Panic(err)
-	}
-
-	sbompolicy := models.SBOMPolicy{SbomID: id, PolicyID: int(policydb.ID)}
-	models.SBOMPOLICYDB.Create(&sbompolicy)
 
 }
