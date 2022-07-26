@@ -46,12 +46,14 @@ The server exposes 4 APIs
  - /sbomservice/api/v1/scanned-image/:id
  - /sbomservice/api/v1/add-image
  - /sbomservice/api/v1/get-vuln/:id
+ - /sbomservice/api/v1/get-policy/:id 
 
 | ENDPOINT | TYPE  | DATA | EXPLANATION |
 |--|--|--|--|
-| /sbomservice/api/v1/all_scanned-images | GET  | NIL | Returns keyvalue pair of Images already scanned |
+| /sbomservice/api/v1/all_scanned-images | GET  | NIL | Returns key-value pair of Images already scanned |
 |/sbomservice/api/v1/scanned-image/:id| GET  | ID | Displays SBOM value for the image stored with the specific ID|
 |/sbomservice/api/v1/get-vuln/:id| GET  | ID | Displays vulnerabilities from the SBOM result of specific ID|
+|/sbomservice/api/v1/get-policy/:id| GET  | ID | Displays KubeArmor policies from the SBOM result of specific ID|
 |/sbomservice/api/v1/add-image| POST | {  "image": "value" , "version":"value" }| Generated SBOM data for the input image. eg: image:ubuntu, version:20.04|
 
 
@@ -111,7 +113,7 @@ The server exposes 4 APIs
     curl -X POST "http://localhost:8080/sbomservice/api/v1/add-image" -d '{"image": "alpine", "version": "latest"}'
     {"Submitted":"alpine:latest"}
     ``` 
-4. View vulnerabilites for a particular image [Generated from SBOM]
+4. View vulnerabilities for a particular image [Generated from SBOM]
 	
     ```
     curl -s "http://localhost:8080/sbomservice/api/v1/get-vuln/1"
@@ -152,5 +154,31 @@ The server exposes 4 APIs
                 },
 	................................................................................................
     ``` 
-
+5. View policies generated for a particular image [Generated from SBOM]
+	
+    ```
+    curl "localhost:8080/sbomservice/api/v1/get-policy/1"
+    
+    {"ID":1,"PolicyID":2}
+    {
+        "Policy": {
+            "KindVal": "KubeArmorPolicy",
+            "MetadataVal": {
+                "Name": "sbom-policy-for-debian-latest-tar-0",
+                "Namespace": "default"
+            },
+            "SpecVal": {
+                "Action": "Audit",
+                "Severity": 5,
+                "Skeleton": {
+                    "MatchPath": {
+                        "Path": "/usr/bin/tar"
+                    }
+                }
+            },
+            "Version": "security.kubearmor.com/v1"
+        }
+    }
+	................................................................................................
+    ``` 
 
