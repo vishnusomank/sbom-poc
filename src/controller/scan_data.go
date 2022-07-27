@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -122,41 +121,58 @@ func GetVulnFromImage(c *gin.Context) {
 }
 
 func GetPolicyForImage(c *gin.Context) {
-	var sbompolicy []models.SBOMPolicy
-	var test []models.SBOMPolicy
-	var policy models.PolicyDB
 
-	count := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&test)
+	var policy []models.PolicyDB
 
-	fmt.Println(count.RowsAffected)
+	count := models.POLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&policy)
 
-	if err := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&sbompolicy).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
-		return
-	}
-
-	if sbompolicy[1].SbomID == 0 {
-		c.JSON(http.StatusOK, gin.H{"Computation in progress": "Please wait"})
+	for i := 0; i < int(count.RowsAffected); i++ {
+		var jsonMap map[string]interface{}
+		json.Unmarshal([]byte(policy[i].PolicyData), &jsonMap)
+		c.JSON(http.StatusOK, gin.H{"ID": policy[i].SBOMID, "PolicyID": policy[i].ID})
+		c.String(200, "\n")
+		c.IndentedJSON(http.StatusOK, gin.H{"Policy": jsonMap})
 		c.String(200, "\n")
 
-	} else {
-		for i := 0; i < int(count.RowsAffected); i++ {
-			/*
-				if err := models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy).Error; err != nil {
-					c.String(200, "\n")
-					c.JSON(http.StatusBadRequest, gin.H{"ID": sbompolicy[i].PolicyID, "Error": "Record not found!"})
-					c.String(200, "\n")
-					//return
-				}
-			*/
-			models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy)
-
-			var jsonMap map[string]interface{}
-			json.Unmarshal([]byte(policy.PolicyData), &jsonMap)
-			c.JSON(http.StatusOK, gin.H{"ID": sbompolicy[i].SbomID, "PolicyID": sbompolicy[i].PolicyID})
-			c.String(200, "\n")
-			c.IndentedJSON(http.StatusOK, gin.H{"Policy": jsonMap})
-		}
 	}
+
+	/*
+		var sbompolicy []models.SBOMPolicy
+		var test []models.SBOMPolicy
+		var policy models.PolicyDB
+
+		count := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&test)
+
+		fmt.Println(count.RowsAffected)
+
+		if err := models.SBOMPOLICYDB.Where("sbom_id = ?", c.Param("id")).Find(&sbompolicy).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"Error": "Record not found!"})
+			return
+		}
+
+		if sbompolicy[1].SbomID == 0 {
+			c.JSON(http.StatusOK, gin.H{"Computation in progress": "Please wait"})
+			c.String(200, "\n")
+
+		} else {
+			for i := 0; i < int(count.RowsAffected); i++ {
+
+					if err := models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy).Error; err != nil {
+						c.String(200, "\n")
+						c.JSON(http.StatusBadRequest, gin.H{"ID": sbompolicy[i].PolicyID, "Error": "Record not found!"})
+						c.String(200, "\n")
+						//return
+					}
+
+				models.POLICYDB.Where("id = ?", sbompolicy[i].PolicyID).First(&policy)
+
+				var jsonMap map[string]interface{}
+				json.Unmarshal([]byte(policy.PolicyData), &jsonMap)
+				c.JSON(http.StatusOK, gin.H{"ID": sbompolicy[i].SbomID, "PolicyID": sbompolicy[i].PolicyID})
+				c.String(200, "\n")
+				c.IndentedJSON(http.StatusOK, gin.H{"Policy": jsonMap})
+			}
+		}
+	*/
 
 }
