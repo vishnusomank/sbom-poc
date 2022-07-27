@@ -12,11 +12,7 @@ type PolicyDB struct {
 	ID         uint   `json:"id" gorm:"primary_key"`
 	CVEId      string `json:"cve"`
 	PolicyData string `json:"policy"`
-}
-
-type SBOMPolicy struct {
-	SbomID   int `json:"sbomID"`
-	PolicyID int `json:"policyID"`
+	SBOMID     int    `json:"sbomID"`
 }
 
 type BinaryPathDB struct {
