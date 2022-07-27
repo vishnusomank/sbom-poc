@@ -32,16 +32,6 @@ func ConnectDatabase() {
 
 	POLICYDB = policydatabase
 
-	sbomdatabase, err := gorm.Open("sqlite3", "SBOMPolicy.db")
-
-	if err != nil {
-		panic("Failed to connect to database!")
-	}
-
-	sbomdatabase.AutoMigrate(&SBOMPolicy{})
-
-	SBOMPOLICYDB = sbomdatabase
-
 	binarypathdb, err := gorm.Open("sqlite3", "BinaryPathDB.db")
 
 	if err != nil {
