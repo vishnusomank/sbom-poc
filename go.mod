@@ -4,16 +4,17 @@ go 1.17
 
 require (
 	github.com/fatih/color v1.13.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/spf13/viper v1.12.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
