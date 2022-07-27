@@ -52,13 +52,17 @@ func StartGrype(imageName, version string, id int, sbom *models.SBOM) {
 		polcount := 0
 		dataVal := gjson.Get(string(file), "matches."+strconv.Itoa(i)+".vulnerability.id")
 		for j := 1; j <= int(count.RowsAffected); j++ {
-			if err := models.POLICYDB.Where("ID = ?", j).First(&policydb).Error; err != nil {
+			if err := models.POLICYDB.Where("id = ?", j).First(&policydb).Error; err != nil {
 				fmt.Printf("[%s][%s] Failed to retrieve data %v\n", color.RedString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"), err)
 				return
 			}
 			if strings.Contains(policydb[0].CVEId, dataVal.String()) && polcount == 0 {
-				sbompolicy := models.SBOMPolicy{SbomID: id, PolicyID: j}
-				models.SBOMPOLICYDB.Create(&sbompolicy)
+				if err := models.POLICYDB.Model(&policydb).Where("id = ?", j).Update("sbom_id", id).Error; err != nil {
+					fmt.Printf("[%s][%s] Unable to update Policy value\n", color.BlueString(time.Now().Format("01-02-2006 15:04:05")), color.RedString("ERR"))
+
+					return
+				}
+
 				polcount = 1
 			}
 
